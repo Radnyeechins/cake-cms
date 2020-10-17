@@ -13,8 +13,9 @@ Router::scope('/', function (RouteBuilder $routes) {
         'httpOnly' => true
     ]));
     $routes->applyMiddleware('csrf');
-    $routes->connect('/', ['controller' => 'Articles', 'action' => 'index', 'home']);
+    $routes->connect('/', ['controller' => 'Articles', 'action' => 'display', 'home']);
     //$routes->connect('/pages/*', ['controller' => 'Pages', 'action' => 'display']);
+
     $routes->fallbacks(DashedRoute::class);
 });
 // Add this
@@ -26,9 +27,10 @@ Router::scope('/articles', function (RouteBuilder $routes) {
 });
 
 //API created
-Router::scope('/api', function ($routes) {
-    $routes->connect('/article-list', ['controller' => 'Articles', 'action' => 'index']);
-   // $routes->connect('/article-add', ['controller' => 'Articles', 'action' => 'add','allowWithoutToken' => true]);
-    $routes->connect('/article-edit/:slug', ['controller' => 'Articles', 'action' => 'edit']);
+Router::scope('/', function ($routes) {
+    Router::extensions(['json', 'xml']);
+    //$routes->resources('Articles');
+    $routes->connect('/articles/article-add', ['controller' => 'Articles', 'action' => 'add']);
+    $routes->connect('/articles/article-list', ['controller' => 'Articles', 'action' => 'display']);
 
 });

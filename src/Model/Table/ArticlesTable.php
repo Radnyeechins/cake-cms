@@ -16,6 +16,11 @@ class ArticlesTable extends Table
             'joinTable' => 'articles_tags',
             'dependent' => true
         ]);
+        $this->hasMany('Comments');
+        
+        $this->belongsTo('Users', [
+            'primaryKey' => 'id'
+        ]);
     }
     public function beforeSave($event, $entity, $options)
     {

@@ -8,36 +8,60 @@ class ArticlesController extends AppController
     public function initialize()
     {
         parent::initialize();
-
+        $this->loadComponent('RequestHandler');
         $this->loadComponent('Paginator');
         $this->loadComponent('Flash'); 
-        $this->Auth->allow(['tags']);
+        $this->Auth->allow(['tags','add']);
         $this->viewBuilder()->layout('frontend');
     }
 
-    public function index()
+    public function display()
     {
-        $articles = $this->Paginator->paginate($this->Articles->find());
+        $articles = $this->Paginator->paginate($this->Articles->find('all')->contain(['Users'],true));
         $this->set(compact('articles'));
+        // Get a list of tags.
+        $tags = $this->Articles->Tags->find('list');
+        // Set tags to the view context
+        $this->set('tags', $tags);
 
         $message = 'success';
-        $this->set('response', $articles);
         $this->set([
             'message' => $message,
+            'response'=> $articles,
             '_serialize' => ['message', 'response']
         ]); 
+
+    }
+    public function index()
+    { 
+        if($this->Auth->user('id') == 1){
+            $articles = $this->Paginator->paginate($this->Articles->find('all')->contain(['Users'],true));
+            $name='';
+        }else{
+            $articles = $this->Paginator->paginate($this->Articles->find()->where(['user_id'=>$this->Auth->user('id')]));
+            $name=$this->Auth->user('name');
+        }
+        $this->set(compact('articles','name'));
+
+
     }
 
     public function view($slug)
     {
-        $article = $this->Articles->findBySlug($slug)->contain(['Tags'])
+        $article = $this->Articles->findBySlug($slug)->contain(['Tags','Users','Comments'])
         ->firstOrFail();
         $this->set(compact('article'));
+        
+        $message = 'success';
+        $this->set([
+            'message' => $message,
+            'response'=> $article,
+            '_serialize' => ['message', 'response']
+        ]); 
     }
 
     public function add()
     {
-        $this->request->allowMethod(['post', 'put']);
         $article = $this->Articles->newEntity();
         $article->user_id = $this->Auth->user('id');
 
@@ -45,7 +69,10 @@ class ArticlesController extends AppController
             $article = $this->Articles->patchEntity($article, $this->request->getData());
             
             // Changed: Set the user_id from the session.
-            $article->user_id = $this->Auth->user('id');
+            if ($this->Auth->user('id') !== null ){
+                $article->user_id = $this->Auth->user('id'); 
+                
+            } 
  
              //Check if image has been uploaded
              if(!empty($article->upload))
@@ -70,8 +97,17 @@ class ArticlesController extends AppController
 
 
             if ($this->Articles->save($article)) {
-                $this->Flash->success(__('Your article has been saved.'));
-                return $this->redirect(['action' => 'index', 'home']);
+                
+                $this->set([
+                    'message' => 'Your article has been saved.',
+                    'response'=> $article,
+                    '_serialize' => ['message', 'response']
+                ]); 
+                if ($this->Auth->user('id') !== null ){
+                    $this->Flash->success(__('Your article has been saved.'));
+
+                    return $this->redirect(['action' => 'index', 'home']);
+                }
             }
             $this->Flash->error(__('Unable to add your article.'));
         }

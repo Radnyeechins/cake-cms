@@ -1,32 +1,23 @@
-<?php
-/**
- * @var \App\View\AppView $this
- * @var \App\Model\Entity\User $user
- */
-?>
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Form->postLink(
-                __('Delete'),
-                ['action' => 'delete', $user->id],
-                ['confirm' => __('Are you sure you want to delete # {0}?', $user->id)]
-            )
-        ?></li>
-        <li><?= $this->Html->link(__('List Users'), ['action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('List Articles'), ['controller' => 'Articles', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Article'), ['controller' => 'Articles', 'action' => 'add']) ?></li>
-    </ul>
-</nav>
-<div class="users form large-9 medium-8 columns content">
-    <?= $this->Form->create($user) ?>
-    <fieldset>
-        <legend><?= __('Edit User') ?></legend>
-        <?php
-            echo $this->Form->control('email');
-            echo $this->Form->control('password');
-        ?>
-    </fieldset>
-    <?= $this->Form->button(__('Submit')) ?>
-    <?= $this->Form->end() ?>
+<?php if (!is_null($this->request->getSession()->read('Auth.User.email'))) { ?>
+
+<div class="col-lg-12 text-right">
+     <?= $this->Html->link(__('User list'), ['action' => 'index'],['class'=>'btn btn-primary']) ?></li>
+     <?= $this->Html->link(__('List Articles'), ['controller' => 'Articles', 'action' => 'index'],['class'=>'btn btn-secondary']) ?>
+     <?= $this->Html->link(__('New Article'), ['controller' => 'Articles', 'action' => 'add'],['class'=>'btn btn-success']) ?>
+   
 </div>
+<?php } ?>
+<div class="container">
+  <h2><?= __('Edit User') ?></h2>
+        <?= $this->Form->create($user,["class"=>"form-inline"]) ?>
+        <?= $this->Form->control('name',['type'=>'text','label' => false,'class'=>'form-control mb-2 mr-sm-2','placeholder'=>'Enter Email Addres']) ?>
+        <?= $this->Form->control('email',['label' => false,'class'=>'form-control mb-2 mr-sm-2','placeholder'=>'Enter Email Addres']) ?>
+
+        <?= $this->Form->control('password',['label' => false, 'class'=>'form-control mb-2 mr-sm-2']) ?>
+        <?= $this->Form->button(__('Submit'),['class'=>'btn btn-primary mb-2']) ?>
+            <?= $this->Form->end() ?>
+        
+</div>
+
+
+

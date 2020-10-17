@@ -46,7 +46,7 @@ class TagsTable extends Table
             'joinTable' => 'articles_tags',
         ]);
     }
-
+ 
     /**
      * Default validation rules.
      *
